@@ -9,7 +9,7 @@
 #import "ViewController.h"
 #import "Bolts.h"
 @interface ViewController ()
-
+@property (nonatomic,strong) NSURLSession *session;
 @end
 
 @implementation ViewController
@@ -45,17 +45,32 @@
     
     return taskSource.task;
 }
-- (BFTask *) deleteAsync:(NSString *)object {
+- (BFTask *) reqAsync:(int)index {
     
     BFTaskCompletionSource *taskSource = [BFTaskCompletionSource taskCompletionSource];
     
-    [taskSource setResult:object];
+    NSURL *url = [NSURL URLWithString:@"https://www.baidu.com/"];
+    NSURLRequest *req = [NSURLRequest requestWithURL:url];
+    NSURLSessionDataTask *dataTask = [_session dataTaskWithRequest:req completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
+        if (error) {
+            [taskSource setError:error];
+        } else {
+            NSHTTPURLResponse  *ss = (NSHTTPURLResponse *)response;
+            NSLog(@"index i= %d response statusCode = %@",index,@(ss.statusCode));
+            [taskSource setResult:response];
+        }
+    }];
+    
+    [dataTask resume];
+    
     
     return taskSource.task;
 }
 
 - (void)viewDidLoad {
     [super viewDidLoad];
+    self.session = [NSURLSession sharedSession];
+
     NSString *obj = @"123";
     // Do any additional setup after loading the view, typically from a nib.
     {
@@ -110,42 +125,42 @@
 
   
     {// 串行任务
-        
-        [[[self findAsync:obj] continueWithBlock:^id(BFTask *task) {
-            NSArray *results = task.result;
-            
-            // 创建一个开始的任务，之后的每一个deleteAsync操作都会依次在这个任务之后顺序进行.
+       [[[self findAsync:obj] continueWithBlock:^id(BFTask *task) {
+           NSLog(@"===== 串行任务=======");
+            // 创建一个开始的任务，之后的每一个reqAsync操作都会依次在这个任务之后顺序进行.
             BFTask *taska = [BFTask taskWithResult:nil];
             
-            for (int i=0;i<10;i++) {
+            for (int i=0;i<5;i++) {
                 // For each item, extend the task with a function to delete the item.
                 taska = [taska continueWithBlock:^id(BFTask *task) {
                     // Return a task that will be marked as completed when the delete is finished.
-                    NSLog(@"i = %d",i);
-                    return [self deleteAsync:obj];
+                   BFTask* taska =  [self reqAsync:i];
+                    [taska waitUntilFinished];
+
+                    return taska;
                 }];
             }
-            // 返回的是最后一个deleteAsync操作的task
-            return task;
+            // 返回的是最后一个reqAsync操作的task
+            return taska;
         }] continueWithBlock:^id(BFTask *task) {
             // Every comment was deleted.
             NSLog(@"Every comment was deleted.");
-
-            return nil;
+            NSLog(@"===== 串行任务=======");
+            return task;
         }];
     }
     
     {// 并行任务
-        
+
         [[[self findAsync:obj] continueWithBlock:^id(BFTask *task) {
             // 创建一个开始的任务，之后的每一个deleteAsync操作都会依次在这个任务之后顺序进行.
             NSMutableArray *tasks = [NSMutableArray array];
-            
+            NSLog(@"=====并行任务=======");
+
             for (int i=0;i<10;i++) {
                 // For each item, extend the task with a function to delete the item.
                 // Return a task that will be marked as completed when the delete is finished.
-                NSLog(@"i = %d",i);
-                [tasks addObject:[self deleteAsync:obj]];
+                [tasks addObject:[self reqAsync:i]];
             }
             
             // 所有的删除任务合在一起本身也是一个任务，删除任务之前是并行的
@@ -153,7 +168,8 @@
         }]continueWithBlock:^id(BFTask *task) {
             // Every comment was deleted.
             NSLog(@"Every comment was deleted.");
-            return nil;
+            NSLog(@"=====并行任务=======");
+            return task;
         }];
     }
     
