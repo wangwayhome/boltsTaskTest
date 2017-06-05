@@ -128,26 +128,33 @@
     dispatch_async(queue, ^{
         
         {// 串行任务
+            NSMutableArray *tasks = [NSMutableArray array];
             
             [[[self findAsync:obj] continueWithBlock:^id(BFTask *task) {
                 NSLog(@"===== 串行任务=======");
                 // 创建一个开始的任务，之后的每一个reqAsync操作都会依次在这个任务之后顺序进行.
                 BFTask *taska = [BFTask taskWithResult:nil];
                 
-                for (int i=0;i<5;i++) {
+                for (int i=0;i<10;i++) {
                     // For each item, extend the task with a function to delete the item.
                     taska = [taska continueWithBlock:^id(BFTask *task) {
                         // Return a task that will be marked as completed when the delete is finished.
-                        BFTask* taska =  [self reqAsync:i];
-                        [taska waitUntilFinished];
-                        NSLog(@"task result : %@",taska.result);
-                        return taska;
+                        BFTask* taskb =  [self reqAsync:i];
+//                        [taska waitUntilFinished];
+//                    NSLog(@"task result : %@",taska.result);
+                        return taskb;
                     }];
+                    [tasks addObject:taska];
                 }
                 // 返回的是最后一个reqAsync操作的task
                 return taska;
             }] continueWithBlock:^id(BFTask *task) {
+                NSLog(@"last task : %@",task);
+
                 // Every comment was deleted.
+                for (BFTask *taska in tasks ) {
+                    NSLog(@"taska : %@",taska);
+                }
                 NSLog(@"Every comment was deleted.");
                 NSLog(@"===== 串行任务=======");
                 return task;
