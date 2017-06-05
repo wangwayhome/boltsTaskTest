@@ -123,9 +123,7 @@
         
     }
     
-    dispatch_queue_t queue = dispatch_queue_create("com.leon.testQueue", DISPATCH_QUEUE_CONCURRENT);
-
-    dispatch_async(queue, ^{
+/*
         
         {// 串行任务
             NSMutableArray *tasks = [NSMutableArray array];
@@ -160,11 +158,10 @@
                 return task;
             }];
         }
-        
-    });
 
-    
-/*
+
+    */
+
     {// 并行任务
         NSMutableArray *tasks = [NSMutableArray array];
 
@@ -190,7 +187,7 @@
             return task;
         }];
     }
-    */
+    
 }
 
 
