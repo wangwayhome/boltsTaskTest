@@ -80,7 +80,7 @@
 		E1B216831EBA128B009F5BA6 /* boltsTaskTest */ = {
 			isa = PBXGroup;
 			children = (
-				E1B2169B1EBA138F009F5BA6 /* Common */,
+				E1B2169B1EBA138F009F5BA6 /* Bolts */,
 				E1B216871EBA128B009F5BA6 /* AppDelegate.h */,
 				E1B216881EBA128B009F5BA6 /* AppDelegate.m */,
 				E1B2168A1EBA128B009F5BA6 /* ViewController.h */,
@@ -102,7 +102,7 @@
 			name = "Supporting Files";
 			sourceTree = "<group>";
 		};
-		E1B2169B1EBA138F009F5BA6 /* Common */ = {
+		E1B2169B1EBA138F009F5BA6 /* Bolts */ = {
 			isa = PBXGroup;
 			children = (
 				E1B2169C1EBA138F009F5BA6 /* BFCancellationToken.h */,
@@ -121,7 +121,7 @@
 				E1B216A91EBA138F009F5BA6 /* Bolts.h */,
 				E1B216AA1EBA138F009F5BA6 /* Bolts.m */,
 			);
-			path = Common;
+			path = Bolts;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -368,6 +368,7 @@
 				E1B2169A1EBA128B009F5BA6 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};
