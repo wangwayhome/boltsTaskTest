@@ -28,7 +28,7 @@
 
 /*
  * 创建一个标示BFTask是否完成的类，BFTaskCompletionSource本身就含有一个BFTask.
- * 在下面的代码中object完成fetchInBackgroundWithBlock操作后，对taskSource中的task进行设置，标示这个task的完成情况，用于外部对这个task的后续处理。
+ * 在下面的代码中object完成操作后，对taskSource中的task进行设置，标示这个task的完成情况，用于外部对这个task的后续处理。
  */
 
 - (BFTask *) findAsync:(NSString *)object {
@@ -214,7 +214,6 @@
     NSMutableArray *tasks = [NSMutableArray array];
     
     [[[self reqAsync:1000] continueWithBlock:^id(BFTask *task) {
-        // 创建一个开始的任务，之后的每一个deleteAsync操作都会依次在这个任务之后顺序进行.
         NSLog(@"=====并行任务=======");
         
         for (int i=0;i<10;i++) {
