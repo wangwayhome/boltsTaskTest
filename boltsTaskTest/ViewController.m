@@ -100,17 +100,17 @@
 
     NSLog(@"======链式用法========");
     [[[[[self reqAsync:1000] continueWithSuccessBlock:^id(BFTask *task) {
-        NSString *string = [NSString stringWithFormat:@"l1-%@", task.result];
+        NSString *string = [NSString stringWithFormat:@"l10000-%@", task.result];
         NSLog(@"%@", string);
         
         return [self reqAsync:1];
     }] continueWithSuccessBlock:^id(BFTask *task) {
-        NSString *string = [NSString stringWithFormat:@"l2-%@", task.result];
+        NSString *string = [NSString stringWithFormat:@"l1-%@", task.result];
         NSLog(@"%@", string);
         
         return [self reqAsync:2];
     }] continueWithSuccessBlock:^id(BFTask *task) {
-        NSString *string = [NSString stringWithFormat:@"l3-%@", task.result];
+        NSString *string = [NSString stringWithFormat:@"l2-%@", task.result];
         NSLog(@"%@", string);
         
         return [self reqAsync:3];
@@ -131,35 +131,38 @@
 
     BFCancellationTokenSource *cts = [BFCancellationTokenSource cancellationTokenSource];
     
-    NSLog(@"======链式用法========");
-    [[[[[self reqAsync:1000] continueWithBlock:^id(BFTask *task) {
-        NSString *string = [NSString stringWithFormat:@"l1-%@", task.result];
-        NSLog(@"%@", string);
+    [[[self reqAsync:1000] continueWithBlock:^id(BFTask *task) {
         
+        NSString *string = [NSString stringWithFormat:@"l1000-%@", task.result];
+        NSLog(@"%@", string);
+
         return [self reqAsync:1];
     } cancellationToken:cts.token] continueWithBlock:^id(BFTask *task) {
+        
         if (cts.isCancellationRequested) {
+            NSLog(@"线程取消");
             
             return [BFTask cancelledTask];
         }
+        
         NSLog(@"%@",@(cts.isCancellationRequested));
-        NSString *string = [NSString stringWithFormat:@"l2-%@", task.result];
+        NSString *string = [NSString stringWithFormat:@"l1-%@", task.result];
         NSLog(@"%@", string);
-        
-        return [self reqAsync:2];
-    }] continueWithBlock:^id(BFTask *task) {
-        NSString *string = [NSString stringWithFormat:@"l3-%@", task.result];
-        NSLog(@"%@", string);
-        
-        return [self reqAsync:3];
-    }] continueWithBlock:^id(BFTask *task) {
-        NSLog(@"Everything is done! %@", task.result);
         
         return nil;
     }];
-    NSLog(@"======链式用法========");
     
-    [cts cancel];
+    
+    
+    dispatch_time_t delayTime = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.1 * NSEC_PER_SEC));
+    
+    dispatch_after(delayTime, dispatch_get_main_queue(), ^{
+
+        [cts cancel];
+        
+    });
+    
+
     
 }
 
